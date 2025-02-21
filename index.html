@@ -9,7 +9,8 @@
             "imports": {
                 "three": "https://cdn.jsdelivr.net/npm/three@0.145/build/three.module.js",
                 "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/controls/OrbitControls.js",
-                "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/loaders/GLTFLoader.js"
+                "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/loaders/GLTFLoader.js",
+                "three/examples/jsm/loaders/TextureLoader.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/loaders/TextureLoader.js"
             }
         }
     </script>
@@ -30,6 +31,7 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
         import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+        import { TextureLoader } from 'three/examples/jsm/loaders/TextureLoader.js';
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x202020);
@@ -80,12 +82,24 @@
         floor.rotation.x = -Math.PI / 2;
         scene.add(floor);
 
-        // Skapa en enkel drop shadow under bilen
-        const shadowGeometry = new THREE.CircleGeometry(0.6, 32);
-        const shadowMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, opacity: 0.5, transparent: true });
-        const shadow = new THREE.Mesh(shadowGeometry, shadowMaterial);
-        shadow.rotation.x = -Math.PI / 2;
-        scene.add(shadow);
+        // Hantera uppladdning av textur
+        const textureLoader = new TextureLoader();
+        document.getElementById('textureUploader').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const texture = textureLoader.load(e.target.result, () => {
+                        texture.wrapS = THREE.RepeatWrapping;
+                        texture.wrapT = THREE.RepeatWrapping;
+                        texture.repeat.set(4, 4);
+                        floorMaterial.map = texture;
+                        floorMaterial.needsUpdate = true;
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
         document.addEventListener("keydown", (event) => {
             keys[event.code] = true;
@@ -110,36 +124,12 @@
                 car.rotation.y -= rotationSpeed;
             }
 
-            // Hoppa
-            if (keys["Space"] && !isJumping) {
-                yVelocity = jumpStrength;
-                isJumping = true;
-            }
-
-            // Gravitation och hopp
-            yVelocity -= gravity;
-            car.position.y += yVelocity;
-            if (car.position.y <= 0.5) {
-                car.position.y = 0.5;
-                yVelocity = 0;
-                isJumping = false;
-            }
-
             velocity.z = Math.max(-maxSpeed, Math.min(maxSpeed, velocity.z));
             velocity.z *= friction;
 
             const direction = new THREE.Vector3(0, 0, -1);
             direction.applyQuaternion(car.quaternion);
             car.position.addScaledVector(direction, velocity.z);
-
-            // Kamera följer bilen uppifrån och bakom
-            const cameraOffset = new THREE.Vector3(0, 8, -12);
-            cameraOffset.applyQuaternion(car.quaternion);
-            camera.position.copy(car.position).add(cameraOffset);
-            camera.lookAt(car.position);
-
-            // Uppdatera skuggan
-            shadow.position.set(car.position.x, 0.01, car.position.z);
         }
 
         function animate() {
