@@ -9,8 +9,7 @@
             "imports": {
                 "three": "https://cdn.jsdelivr.net/npm/three@0.145/build/three.module.js",
                 "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/controls/OrbitControls.js",
-                "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/loaders/GLTFLoader.js",
-                "three/examples/jsm/loaders/TextureLoader.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/loaders/TextureLoader.js"
+                "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/loaders/GLTFLoader.js"
             }
         }
     </script>
@@ -31,7 +30,6 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
         import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-        import { TextureLoader } from 'three/examples/jsm/loaders/TextureLoader.js';
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x202020);
@@ -82,8 +80,8 @@
         floor.rotation.x = -Math.PI / 2;
         scene.add(floor);
 
-        // Hantera uppladdning av textur
-        const textureLoader = new TextureLoader();
+        // Ladda textur för golvet
+        const textureLoader = new THREE.TextureLoader();
         document.getElementById('textureUploader').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
