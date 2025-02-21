@@ -1,44 +1,103 @@
-// Ladda bilen från GitHub Raw
-console.log("🚗 Försöker ladda bilen...");
-loader.load('https://raw.githubusercontent.com/ABBY-WORLD/RACE/main/car_model.glb', 
-    (gltf) => {
-        let car = gltf.scene;
-        car.position.set(0, 0.5, 0);
-        scene.add(car);
-        console.log("✅ Bil laddad!");
-    },
-    undefined,
-    function(error) {
-        console.error("🚨 Bil kunde inte laddas:", error);
-    }
-);
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Racingspel</title>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.145/build/three.module.js",
+                "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/controls/OrbitControls.js",
+                "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/loaders/GLTFLoader.js"
+            }
+        }
+    </script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-// Ladda AI-bilen från GitHub Raw
-console.log("🤖 Försöker ladda AI-bilen...");
-loader.load('https://raw.githubusercontent.com/ABBY-WORLD/RACE/main/ai_car_model.glb', 
-    (gltf) => {
-        let aiCar = gltf.scene;
-        aiCar.position.set(2, 0.5, -5);
-        scene.add(aiCar);
-        console.log("✅ AI-bil laddad!");
-    },
-    undefined,
-    function(error) {
-        console.error("🚨 AI-bil kunde inte laddas:", error);
-    }
-);
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x202020);
 
-// Ladda banan från GitHub Raw
-console.log("🏁 Försöker ladda banan...");
-loader.load('https://raw.githubusercontent.com/ABBY-WORLD/RACE/main/3d_track.glb', 
-    (gltf) => {
-        let track = gltf.scene;
-        track.position.set(0, 0, 0);
-        scene.add(track);
-        console.log("✅ Banan laddad!");
-    },
-    undefined,
-    function(error) {
-        console.error("🚨 Banan kunde inte laddas:", error);
-    }
-);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 30);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        directionalLight.position.set(5, 10, 5);
+        scene.add(directionalLight);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        const loader = new GLTFLoader();
+
+        // Ladda bilen från GitHub Pages
+        console.log("🚗 Försöker ladda bilen...");
+        loader.load('https://abby-world.github.io/RACE/car_model.glb', 
+            (gltf) => {
+                let car = gltf.scene;
+                car.position.set(0, 0.5, 0);
+                scene.add(car);
+                console.log("✅ Bil laddad!");
+            },
+            undefined,
+            function(error) {
+                console.error("🚨 Bil kunde inte laddas:", error);
+            }
+        );
+
+        // Ladda AI-bilen från GitHub Pages
+        console.log("🤖 Försöker ladda AI-bilen...");
+        loader.load('https://abby-world.github.io/RACE/ai_car_model.glb', 
+            (gltf) => {
+                let aiCar = gltf.scene;
+                aiCar.position.set(2, 0.5, -5);
+                scene.add(aiCar);
+                console.log("✅ AI-bil laddad!");
+            },
+            undefined,
+            function(error) {
+                console.error("🚨 AI-bil kunde inte laddas:", error);
+            }
+        );
+
+        // Ladda banan från GitHub Pages
+        console.log("🏁 Försöker ladda banan...");
+        loader.load('https://abby-world.github.io/RACE/3d_track.glb', 
+            (gltf) => {
+                let track = gltf.scene;
+                track.position.set(0, 0, 0);
+                scene.add(track);
+                console.log("✅ Banan laddad!");
+            },
+            undefined,
+            function(error) {
+                console.error("🚨 Banan kunde inte laddas:", error);
+            }
+        );
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
