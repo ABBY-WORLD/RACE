@@ -61,19 +61,19 @@
         let isJumping = false;
         const keys = {};
 
-        console.log("🖱️ Försöker ladda muspekaren...");
-        loader.load('https://abby-world.github.io/RACE/cursor_model.glb', (gltf) => {
+        console.log("🚗 Försöker ladda bilen...");
+        loader.load('https://abby-world.github.io/RACE/car_model.glb', (gltf) => {
             car = gltf.scene;
             car.position.set(0, 0.5, 0);
             car.scale.set(1, 1, 1);
             car.rotation.y = Math.PI;
             scene.add(car);
-            console.log("✅ Muspekare laddad!");
+            console.log("✅ Bil laddad!");
         }, undefined, (error) => {
-            console.error("🚨 Muspekaren kunde inte laddas:", error);
+            console.error("🚨 Bil kunde inte laddas:", error);
         });
 
-        // Skapa en enkel drop shadow under muspekaren
+        // Skapa en enkel drop shadow under bilen
         const shadowGeometry = new THREE.CircleGeometry(0.6, 32);
         const shadowMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, opacity: 0.5, transparent: true });
         const shadow = new THREE.Mesh(shadowGeometry, shadowMaterial);
