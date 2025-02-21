@@ -9,23 +9,27 @@
             "imports": {
                 "three": "https://cdn.jsdelivr.net/npm/three@0.145/build/three.module.js",
                 "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/controls/OrbitControls.js",
-                "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/loaders/GLTFLoader.js",
-                "three/examples/jsm/loaders/TextureLoader.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/loaders/TextureLoader.js"
+                "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/loaders/GLTFLoader.js"
             }
         }
     </script>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; }
+        #textureUploader {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
-    <input type="file" id="textureUploader" accept="image/*" style="position: absolute; top: 10px; left: 10px; z-index: 10;">
+    <input type="file" id="textureUploader" accept="image/*">
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
         import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-        import { TextureLoader } from 'three/examples/jsm/loaders/TextureLoader.js';
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x202020);
@@ -73,15 +77,19 @@
         scene.add(floor);
 
         // Ladda upp en textur för golvet
-        const textureLoader = new TextureLoader();
         document.getElementById('textureUploader').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const texture = textureLoader.load(e.target.result);
-                    floorMaterial.map = texture;
-                    floorMaterial.needsUpdate = true;
+                    const image = new Image();
+                    image.src = e.target.result;
+                    image.onload = function() {
+                        const texture = new THREE.Texture(image);
+                        texture.needsUpdate = true;
+                        floorMaterial.map = texture;
+                        floorMaterial.needsUpdate = true;
+                    };
                 };
                 reader.readAsDataURL(file);
             }
