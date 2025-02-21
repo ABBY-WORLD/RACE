@@ -1,73 +1,103 @@
-let car; // Skapa en global variabel för bilen
-const velocity = new THREE.Vector3(0, 0, 0); // Hastighetsvektor
-const acceleration = 0.02; // Hur snabbt bilen accelererar
-const maxSpeed = 0.5; // Maxhastighet
-const friction = 0.98; // Hur mycket bilen saktar in när du släpper tangenterna
-const rotationSpeed = 0.03; // Hur snabbt bilen svänger
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Racingspel</title>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.145/build/three.module.js",
+                "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/controls/OrbitControls.js",
+                "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.145/examples/jsm/loaders/GLTFLoader.js"
+            }
+        }
+    </script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-const keys = {}; // Håller koll på nedtryckta tangenter
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x202020);
 
-// Ladda bilen från GitHub Pages och gör den styrbar
-console.log("🚗 Försöker ladda bilen...");
-loader.load('https://abby-world.github.io/RACE/car_model.glb', 
-    (gltf) => {
-        car = gltf.scene;
-        car.position.set(0, 0.5, 0);
-        scene.add(car);
-        console.log("✅ Bil laddad!");
-    },
-    undefined,
-    function(error) {
-        console.error("🚨 Bil kunde inte laddas:", error);
-    }
-);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 30);
+        camera.lookAt(0, 0, 0);
 
-// Lyssna efter tangenttryckningar
-document.addEventListener("keydown", (event) => {
-    keys[event.code] = true;
-});
-document.addEventListener("keyup", (event) => {
-    keys[event.code] = false;
-});
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-// Uppdatera bilens rörelse varje frame
-function updateCar() {
-    if (!car) return; // Vänta tills bilen är laddad
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        directionalLight.position.set(5, 10, 5);
+        scene.add(directionalLight);
 
-    // Rörelse framåt/bakåt
-    if (keys["ArrowUp"] || keys["KeyW"]) {
-        velocity.z -= acceleration; // Kör framåt
-    }
-    if (keys["ArrowDown"] || keys["KeyS"]) {
-        velocity.z += acceleration; // Backa
-    }
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
 
-    // Svänga vänster/höger
-    if (keys["ArrowLeft"] || keys["KeyA"]) {
-        car.rotation.y += rotationSpeed; // Sväng vänster
-    }
-    if (keys["ArrowRight"] || keys["KeyD"]) {
-        car.rotation.y -= rotationSpeed; // Sväng höger
-    }
+        const loader = new GLTFLoader();
 
-    // Begränsa maxhastigheten
-    velocity.z = Math.max(-maxSpeed, Math.min(maxSpeed, velocity.z));
+        // Ladda bilen från GitHub Pages
+        console.log("🚗 Försöker ladda bilen...");
+        loader.load('https://abby-world.github.io/RACE/car_model.glb', 
+            (gltf) => {
+                let car = gltf.scene;
+                car.position.set(0, 0.5, 0);
+                scene.add(car);
+                console.log("✅ Bil laddad!");
+            },
+            undefined,
+            function(error) {
+                console.error("🚨 Bil kunde inte laddas:", error);
+            }
+        );
 
-    // Tillämpa friktion så bilen inte glider för evigt
-    velocity.z *= friction;
+        // Ladda AI-bilen från GitHub Pages
+        console.log("🤖 Försöker ladda AI-bilen...");
+        loader.load('https://abby-world.github.io/RACE/ai_car_model.glb', 
+            (gltf) => {
+                let aiCar = gltf.scene;
+                aiCar.position.set(2, 0.5, -5);
+                scene.add(aiCar);
+                console.log("✅ AI-bil laddad!");
+            },
+            undefined,
+            function(error) {
+                console.error("🚨 AI-bil kunde inte laddas:", error);
+            }
+        );
 
-    // Uppdatera bilens position baserat på rotationen
-    const direction = new THREE.Vector3(0, 0, -1);
-    direction.applyQuaternion(car.quaternion);
-    car.position.addScaledVector(direction, velocity.z);
-}
+        // Ladda banan från GitHub Pages
+        console.log("🏁 Försöker ladda banan...");
+        loader.load('https://abby-world.github.io/RACE/3d_track.glb', 
+            (gltf) => {
+                let track = gltf.scene;
+                track.position.set(0, 0, 0);
+                scene.add(track);
+                console.log("✅ Banan laddad!");
+            },
+            undefined,
+            function(error) {
+                console.error("🚨 Banan kunde inte laddas:", error);
+            }
+        );
 
-// Lägg till bilens uppdatering i animationsloopen
-function animate() {
-    requestAnimationFrame(animate);
-    updateCar();
-    controls.update();
-    renderer.render(scene, camera);
-}
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
 
-animate();
+        animate();
+    </script>
+</body>
+</html>
