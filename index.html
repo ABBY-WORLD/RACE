@@ -80,17 +80,17 @@
         floor.rotation.x = -Math.PI / 2;
         scene.add(floor);
 
-        // Ladda textur för golvet
+        // Ladda textur för golvet och sträck ut den över hela ytan
         const textureLoader = new THREE.TextureLoader();
         document.getElementById('textureUploader').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const texture = textureLoader.load(e.target.result, () => {
-                        texture.wrapS = THREE.RepeatWrapping;
-                        texture.wrapT = THREE.RepeatWrapping;
-                        texture.repeat.set(4, 4);
+                    textureLoader.load(e.target.result, (texture) => {
+                        texture.wrapS = THREE.ClampToEdgeWrapping;
+                        texture.wrapT = THREE.ClampToEdgeWrapping;
+                        texture.repeat.set(1, 1); // Sträcker ut hela texturen
                         floorMaterial.map = texture;
                         floorMaterial.needsUpdate = true;
                     });
@@ -128,6 +128,12 @@
             const direction = new THREE.Vector3(0, 0, -1);
             direction.applyQuaternion(car.quaternion);
             car.position.addScaledVector(direction, velocity.z);
+
+            // Uppdatera kameran för att följa bilen från ovan
+            const cameraOffset = new THREE.Vector3(0, 10, -15);
+            cameraOffset.applyQuaternion(car.quaternion);
+            camera.position.copy(car.position).add(cameraOffset);
+            camera.lookAt(car.position);
         }
 
         function animate() {
