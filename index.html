@@ -1,0 +1,44 @@
+// Ladda bilen från GitHub Raw
+console.log("🚗 Försöker ladda bilen...");
+loader.load('https://raw.githubusercontent.com/ABBY-WORLD/RACE/main/car_model.glb', 
+    (gltf) => {
+        let car = gltf.scene;
+        car.position.set(0, 0.5, 0);
+        scene.add(car);
+        console.log("✅ Bil laddad!");
+    },
+    undefined,
+    function(error) {
+        console.error("🚨 Bil kunde inte laddas:", error);
+    }
+);
+
+// Ladda AI-bilen från GitHub Raw
+console.log("🤖 Försöker ladda AI-bilen...");
+loader.load('https://raw.githubusercontent.com/ABBY-WORLD/RACE/main/ai_car_model.glb', 
+    (gltf) => {
+        let aiCar = gltf.scene;
+        aiCar.position.set(2, 0.5, -5);
+        scene.add(aiCar);
+        console.log("✅ AI-bil laddad!");
+    },
+    undefined,
+    function(error) {
+        console.error("🚨 AI-bil kunde inte laddas:", error);
+    }
+);
+
+// Ladda banan från GitHub Raw
+console.log("🏁 Försöker ladda banan...");
+loader.load('https://raw.githubusercontent.com/ABBY-WORLD/RACE/main/3d_track.glb', 
+    (gltf) => {
+        let track = gltf.scene;
+        track.position.set(0, 0, 0);
+        scene.add(track);
+        console.log("✅ Banan laddad!");
+    },
+    undefined,
+    function(error) {
+        console.error("🚨 Banan kunde inte laddas:", error);
+    }
+);
